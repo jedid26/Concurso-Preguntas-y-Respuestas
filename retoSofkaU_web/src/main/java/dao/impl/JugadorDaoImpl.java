@@ -15,16 +15,16 @@ public class JugadorDaoImpl implements JugadorDao {
 	@Override
 	public Jugador getUserByUsername(String username) {
 		
-		String sql = "SELECT * FROM jugadores WHERE username = "+username;		
+		String sql = "SELECT username, maxscore FROM public.jugadores WHERE username = '"+username+"'";		
 		
 		Jugador nuevoJugador = null;
 		
 		try(Connection con = AdministradorDeConexiones.obtenerConexion();) {
 			
-			try (Statement st = con.createStatement();){
+			try (Statement st = con.createStatement()){	
 				
 				try(ResultSet rs = st.executeQuery(sql);){
-					System.out.println(rs.getFetchSize());
+					
 					while (rs.next()) {
 						String nombreJugador = rs.getString("username");
 						String puntajeMax = rs.getString("maxScore");
@@ -42,14 +42,12 @@ public class JugadorDaoImpl implements JugadorDao {
 
 	@Override
 	public void guardarJugador(Jugador usuario) {
-		String sql = "INSERT INTO jugadores (username, maxscore) VALUES (?, ?)";
-		
+		String sql = "INSERT INTO public.jugadores (username, maxscore) VALUES (?, ?)";
 		try(Connection con = AdministradorDeConexiones.obtenerConexion();){
 			
 			try(PreparedStatement st = con.prepareStatement(sql);){
 				st.setString(1, usuario.getUsername());
 				st.setInt(2, usuario.getMaxScore().intValue());
-				
 				st.execute();
 			}
 		} catch (SQLException e) {
@@ -59,11 +57,10 @@ public class JugadorDaoImpl implements JugadorDao {
 
 	@Override
 	public void actualizarPuntuacion(Jugador jugador) {
-		String sql = "UPDATE jugadores SET maxscore = "+String.valueOf(jugador.getMaxScore())+ " WHERE username = " + jugador.getUsername();
-		
+		String sql = "UPDATE public.jugadores SET maxscore = '"+String.valueOf(jugador.getMaxScore())+"' WHERE username = '"+jugador.getUsername()+"'";
 		try (Connection con = AdministradorDeConexiones.obtenerConexion();){
-			try (Statement st = con.createStatement();){
-				st.executeUpdate(sql);
+			try (Statement st = con.createStatement()){
+				st.execute(sql);
 			}
 		} catch (SQLException e) {
 			System.out.println("Error al actualizar puntaje "+ e.getMessage());
